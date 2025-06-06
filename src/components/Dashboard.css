@@ -1,0 +1,33 @@
+.dashboard {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.dashboard h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.content {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.map-container, .chart-container {
+  flex: 1;
+  min-width: 400px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.status {
+  text-align: center;
+  font-size: 1.2em;
+  padding: 50px;
+}
+
+.error {
+  color: red;
+}
