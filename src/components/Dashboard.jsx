@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import MapComponent from './MapComponent';
-import ElbowChart from './ElbowChart';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import MapComponent from "./MapComponent";
+import ElbowChart from "./ElbowChart";
 
 const dummyClusterData = {
   cluster_centers: [
@@ -29,6 +29,40 @@ const dummyElbowData = {
 const Dashboard = () => {
   const [clusterData] = useState(dummyClusterData);
   const [elbowData] = useState(dummyElbowData);
+
+  return (
+    <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800">
+            Dashboard Analisis Klaster COVID-19
+          </h1>
+          <p className="mt-2 text-slate-500">
+            Visualisasi persebaran kasus COVID-19 di Indonesia menggunakan
+            metode klastering.
+          </p>
+        </div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="lg:w-2/3 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+            <h2 className="text-xl font-bold text-slate-700 mb-4">
+              Peta Sebaran Klaster Provinsi
+            </h2>
+            {clusterData && <MapComponent data={clusterData} />}
+          </div>
+          <div className="lg:w-1/pre-line/3 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+            <h2 className="text-xl font-bold text-slate-700 mb-4">
+              Analisis Elbow Method
+            </h2>
+            {elbowData && <ElbowChart data={elbowData} />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
 //   const [clusterData, setClusterData] = useState(null);
 //   const [elbowData, setElbowData] = useState(null);
 //   const [loading, setLoading] = useState(true);
@@ -68,24 +102,3 @@ const Dashboard = () => {
 //   if (error) {
 //     return <div className="status error">{error}</div>;
 //   }
-
-  return (
-    <div className="p-4 sm:p-6 md:p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8">
-        Dashboard Analisis Klaster COVID-19 Indonesia
-      </h1>
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1 lg:w-2/3 p-4 bg-white border border-gray-200 rounded-xl shadow-md">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Peta Sebaran Klaster Provinsi</h2>
-          {clusterData && <MapComponent data={clusterData} />}
-        </div>
-        <div className="flex-1 lg:w-1/3 p-4 bg-white border border-gray-200 rounded-xl shadow-md">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Analisis Elbow Method (Penentuan k)</h2>
-          {elbowData && <ElbowChart data={elbowData} />}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Dashboard;
