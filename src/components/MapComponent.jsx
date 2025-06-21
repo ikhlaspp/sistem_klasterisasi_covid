@@ -149,12 +149,18 @@ const MapComponent = ({ data }) => {
       setClusterStats(stats);
     }
   }, [data]);
-
-  // Define cluster colors
+  // Define cluster colors with more distinct options
   const clusterColors = {
     0: '#FF0000', // Red for cluster 1
-    1: '#00FF00', // Green for cluster 2
-    2: '#0000FF'  // Blue for cluster 3
+    1: '#00CC00', // Green for cluster 2
+    2: '#0000FF', // Blue for cluster 3
+    3: '#FFA500', // Orange for cluster 4
+    4: '#800080', // Purple for cluster 5
+    5: '#00CCCC', // Cyan for cluster 6
+    6: '#FF6699', // Pink for cluster 7
+    7: '#663300', // Brown for cluster 8
+    8: '#FFFF00', // Yellow for cluster 9
+    9: '#999999'  // Gray for cluster 10
   };
   // Load GeoJSON data
   useEffect(() => {
@@ -239,6 +245,19 @@ const MapComponent = ({ data }) => {
       const deathCount = provinceData.features[2];
       const recoveryRate = ((recoveredCount / positiveCount) * 100).toFixed(2);
       const deathRate = ((deathCount / positiveCount) * 100).toFixed(2);
+        // Get cluster label
+      const getClusterLabel = (idx) => {
+        switch (idx) {
+          case 0: return "Sangat Tinggi";
+          case 1: return "Tinggi";
+          case 2: return "Sedang";
+          case 3: return "Rendah";
+          case 4: return "Sangat Rendah";
+          default: return `Cluster ${idx + 1}`;
+        }
+      };
+      
+      const clusterLabel = getClusterLabel(provinceData.cluster);
       
       const popupContent = `
         <div class="custom-popup">
@@ -248,7 +267,7 @@ const MapComponent = ({ data }) => {
               <span class="font-medium">Cluster:</span>
               <span class="ml-2">
                 <span class="px-2 py-0.5 rounded" style="background-color:${clusterColors[provinceData.cluster]}; color: white;">
-                  ${clusterNumber}
+                  ${clusterLabel}
                 </span>
               </span>
             </div>
@@ -348,6 +367,19 @@ const MapComponent = ({ data }) => {
           <div className="absolute left-4 bottom-4 bg-white rounded-lg shadow-lg p-4 z-[1000] min-w-[250px]">
             <div className="font-medium text-gray-800 mb-2">Cluster Legend</div>            {data.cluster_centers.map((center, index) => {
               const stats = clusterStats[index] || {};
+              
+              // Definisi label untuk setiap cluster
+              const getClusterLabel = (idx) => {
+                switch (idx) {
+                  case 0: return "Sangat Tinggi";
+                  case 1: return "Tinggi";
+                  case 2: return "Sedang";
+                  case 3: return "Rendah";
+                  case 4: return "Sangat Rendah";
+                  default: return `Cluster ${idx + 1}`;
+                }
+              };
+              
               return (
                 <div key={index} className="mb-4 last:mb-0 border-b pb-3 last:border-b-0 last:pb-0">
                   <div className="flex items-start">
@@ -357,7 +389,7 @@ const MapComponent = ({ data }) => {
                     ></div>
                     <div className="w-full">
                       <div className="font-medium flex justify-between">
-                        <span>Cluster {index + 1}</span>
+                        <span>Cluster {index + 1} <span className="text-xs font-normal">({getClusterLabel(index)})</span></span>
                         {stats.count > 0 && (
                           <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full">
                             {stats.count} provinsi
@@ -409,7 +441,18 @@ const MapComponent = ({ data }) => {
                 const deathCount = provinceData.features[2];
                 const recoveryRate = ((recoveredCount / positiveCount) * 100).toFixed(2);
                 const deathRate = ((deathCount / positiveCount) * 100).toFixed(2);
-                
+                  // Fungsi untuk mendapatkan label cluster
+                const getClusterLabel = (idx) => {
+                  switch (idx) {
+                    case 0: return "Sangat Tinggi";
+                    case 1: return "Tinggi";
+                    case 2: return "Sedang";
+                    case 3: return "Rendah";
+                    case 4: return "Sangat Rendah";
+                    default: return `Cluster ${idx + 1}`;
+                  }
+                };
+              
                 return (
                   <div>
                     <div className="flex justify-between items-center mb-2">
@@ -418,7 +461,7 @@ const MapComponent = ({ data }) => {
                         className="px-2 py-0.5 rounded text-white text-xs"
                         style={{ backgroundColor: clusterColors[provinceData.cluster] }}
                       >
-                        Cluster {clusterNumber}
+                        {getClusterLabel(provinceData.cluster)}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm">

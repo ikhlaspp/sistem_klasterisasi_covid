@@ -35,20 +35,31 @@ app.add_middleware(
 def get_clusters():
     """
     Endpoint untuk menjalankan klastering FCM dan mengembalikan hasilnya.
+    Menggunakan hasil analisis elbow untuk menentukan jumlah klaster optimal.
     Hasil akan di-cache setelah perhitungan pertama.
     """
-    global CLUSTER_CACHE
+    global CLUSTER_CACHE, ELBOW_CACHE
     print(">>> Menerima permintaan di /api/clusters")
     
-    # Return cached result if available
+    # First get elbow results to determine optimal k
+    elbow_result = None
+    if ELBOW_CACHE is not None:
+        print("    - Using cached elbow analysis result")
+        elbow_result = ELBOW_CACHE
+    else:
+        print("    - Calculating elbow analysis first")
+        elbow_result = calculate_elbow_sse()
+        ELBOW_CACHE = elbow_result
+        
+    # Return cached cluster result if available
     if CLUSTER_CACHE is not None:
         print("    - Returning cached cluster result")
         return CLUSTER_CACHE
     
-    # Calculate and cache the result
-    result = calculate_fcm_clusters()
+    # Calculate and cache the result using elbow result
+    result = calculate_fcm_clusters(elbow_result=elbow_result)
     CLUSTER_CACHE = result
-    print("    - Calculated and cached new cluster result")
+    print(f"    - Calculated and cached new cluster result with k={result['n_clusters']}")
     return result
 
 # Endpoint untuk mendapatkan hasil analisis Elbow Method
@@ -71,6 +82,17 @@ def get_elbow_analysis():
     ELBOW_CACHE = result
     print("    - Calculated and cached new elbow analysis result")
     return result
+
+# Endpoint untuk menghapus cache dan memaksa perhitungan ulang
+@app.get("/api/clear-cache")
+def clear_cache():
+    """
+    Endpoint untuk menghapus cache dan memaksa perhitungan ulang saat request berikutnya.
+    """
+    global CLUSTER_CACHE, ELBOW_CACHE
+    CLUSTER_CACHE = None
+    ELBOW_CACHE = None
+    return {"status": "Cache has been cleared. Next requests will recalculate results."}
 
 # Endpoint sederhana untuk memeriksa apakah server berjalan
 @app.get("/")
