@@ -45,17 +45,22 @@ def get_clusters():
     print(f"    - Calculated and cached new cluster result with k={result['n_clusters']}")
     return result
 @app.get("/api/elbow-analysis")
-def get_elbow_analysis():
-    global ELBOW_CACHE
-    print(">>> Menerima permintaan di /api/elbow-analysis")
+def get_elbow_analysis(k_min: int = None, k_max: int = None):
+    global ELBOW_CACHE, CLUSTER_CACHE
+    print(f">>> Menerima permintaan di /api/elbow-analysis dengan k_min={k_min}, k_max={k_max}")
     
-
-    if ELBOW_CACHE is not None:
+    # If k_min or k_max is provided, we need to recalculate
+    if k_min is not None or k_max is not None:
+        print("    - Parameter k_min atau k_max diberikan, menghitung ulang hasil")
+        # Clear the cache
+        ELBOW_CACHE = None
+        CLUSTER_CACHE = None
+    elif ELBOW_CACHE is not None:
         print("    - Returning cached elbow analysis result")
         return ELBOW_CACHE
     
-
-    result = calculate_elbow_sse()
+    # Use calculate_elbow_sse with provided parameters
+    result = calculate_elbow_sse(k_min=k_min, k_max=k_max)
     ELBOW_CACHE = result
     print("    - Calculated and cached new elbow analysis result")
     return result

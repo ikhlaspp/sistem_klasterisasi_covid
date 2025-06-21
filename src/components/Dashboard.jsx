@@ -8,6 +8,31 @@ const Dashboard = () => {
   const [elbowData, setElbowData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [kMin, setKMin] = useState(2);
+  const [kMax, setKMax] = useState(6);
+  const [recalculating, setRecalculating] = useState(false);
+  const recalculateElbow = async () => {
+    if (kMin >= kMax) {
+      alert("K-min harus lebih kecil dari K-max");
+      return;
+    }
+    
+    setRecalculating(true);
+    try {
+      // Fetch elbow analysis data with custom k range
+      const elbowResponse = await axios.get(`http://127.0.0.1:8000/api/elbow-analysis?k_min=${kMin}&k_max=${kMax}`);
+      setElbowData(elbowResponse.data);
+      
+      // Re-fetch clustering data as it may change with new optimal k
+      const clusterResponse = await axios.get('http://127.0.0.1:8000/api/clusters');
+      setClusterData(clusterResponse.data);
+    } catch (error) {
+      console.error("Error recalculating data:", error);
+      setError("Failed to recalculate with new k range");
+    } finally {
+      setRecalculating(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,17 +97,47 @@ const Dashboard = () => {
               </p>
             </div>
             {clusterData && <MapComponent data={clusterData} />}
-          </div>
-
-          {/* Elbow Chart Below Map */}
+          </div>          {/* Elbow Chart Below Map */}
           <div className="w-full bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-slate-700">
-                Analisis Elbow Method
-              </h2>
-              <p className="text-sm text-slate-500">
-                Metode untuk menentukan jumlah cluster optimal berdasarkan SSE (Sum of Squared Error)
-              </p>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-700">
+                  Analisis Elbow Method
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Metode untuk menentukan jumlah cluster optimal berdasarkan SSE (Sum of Squared Error)
+                </p>
+              </div>
+              <div className="flex items-center">
+                <div className="mr-4">
+                  <label className="block text-sm font-medium text-slate-700">K-min</label>
+                  <input 
+                    type="number" 
+                    min="2" 
+                    max="8"
+                    defaultValue="2"
+                    className="mt-1 block w-16 rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    onChange={(e) => setKMin(parseInt(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">K-max</label>
+                  <input 
+                    type="number" 
+                    min="4" 
+                    max="10"
+                    defaultValue="6"
+                    className="mt-1 block w-16 rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    onChange={(e) => setKMax(parseInt(e.target.value))}
+                  />
+                </div>
+                <button
+                  className="ml-4 mt-5 bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded text-sm"
+                  onClick={recalculateElbow}
+                >
+                  Hitung Ulang
+                </button>
+              </div>
             </div>
             {elbowData ? (
               <ElbowChart data={elbowData} />

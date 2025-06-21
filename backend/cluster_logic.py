@@ -312,7 +312,7 @@ def calculate_fcm_clusters(n_clusters=None, elbow_result=None):
     return result
 
 
-def calculate_elbow_sse():
+def calculate_elbow_sse(k_min=None, k_max=None):
 
     data_df = load_data()
     if data_df is None:
@@ -326,8 +326,19 @@ def calculate_elbow_sse():
     
     # Normalisasi data secara manual
     normalized_features, scaler_params = manual_minmax_scaler(features_list)
-      # Range k yang akan dianalisis (2-10)
-    k_range = range(, 6)
+    
+    # Range k yang akan dianalisis, with default 2-6 if not specified
+    if k_min is None:
+        k_min = 2
+    if k_max is None:
+        k_max = 6
+        
+    # Validasi input parameters
+    k_min = max(2, min(k_min, 10))  # Ensure k_min is between 2 and 10
+    k_max = max(k_min + 1, min(k_max, 10))  # Ensure k_max is between k_min+1 and 10
+    
+    print(f"    - Menggunakan range k dari {k_min} hingga {k_max}")
+    k_range = range(k_min, k_max + 1)
     sse_scores = []
     fpc_scores = []  # Fuzzy Partition Coefficient - ukuran tambahan kualitas clustering
     
