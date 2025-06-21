@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-import indonesiaGeoJSON from "../assets/provinsi.json";
+import indonesiaGeoJSON from "../assets/indonesia-prov-placeholder.json";
 
 const Home = () => {
   const mapCenter = [-2.548926, 118.0148634];
