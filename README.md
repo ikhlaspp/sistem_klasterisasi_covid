@@ -114,30 +114,4 @@ Jika sudah pernah menginstal dependensi:
    Backend menggunakan matplotlib.use('Agg') untuk menghindari masalah di lingkungan headless
    ```
 
-## Struktur Proyek
-
-```
-sistem_klasterisasi_covid/
-├── backend/                 # Backend Python/FastAPI
-│   ├── data/                # Data COVID-19
-│   ├── cluster_logic.py     # Algoritma Fuzzy C-Means
-│   ├── data_loader.py       # Modul untuk memuat data
-│   ├── main.py              # Entry point aplikasi FastAPI
-│   └── requirements.txt     # Dependensi Python
-├── src/                     # Frontend React
-│   ├── assets/              # Termasuk GeoJSON Indonesia
-│   ├── components/          # Komponen React
-│   └── utils/               # Utilitas
-├── index.html               # Entry point HTML
-└── package.json             # Konfigurasi npm
-```
-
-## Kontributor
-
-SiKov-Clust dikembangkan oleh:
-- Nama Anda
-- Anggota Tim Lainnya
-
----
-
 © 2025 SiKov-Clust
