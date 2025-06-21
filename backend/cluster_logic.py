@@ -1,23 +1,14 @@
-# backend/cluster_logic.py
-
-import math # Untuk perhitungan akar kuadrat (jarak Euclidean)
-import random # Untuk inisialisasi acak
+import math
+import random 
 import numpy as np
-# 1. Mengimpor fungsi load_data dari modul data_loader
 from data_loader import load_data
-
-# Configure Matplotlib to use a non-interactive backend to avoid tkinter errors
 import matplotlib
-matplotlib.use('Agg')  # Use the 'Agg' backend which doesn't require a GUI
-import matplotlib.pyplot as plt  # Import pyplot after setting the backend
+matplotlib.use('Agg')  
+import matplotlib.pyplot as plt 
 
-# --- Fungsi untuk Normalisasi Min-Max (Manual) ---
+
 def manual_minmax_scaler(data):
-    """
-    Melakukan normalisasi Min-Max secara manual.
-    Input data diharapkan list of lists, di mana setiap inner list adalah titik data.
-    Mengembalikan list of lists yang dinormalisasi dan scaler_params.
-    """
+
     if not data:
         return [], None
 
@@ -25,7 +16,6 @@ def manual_minmax_scaler(data):
     min_vals = [float('inf')] * num_features
     max_vals = [float('-inf')] * num_features
 
-    # Cari min dan max untuk setiap fitur
     for point in data:
         for i in range(num_features):
             if point[i] < min_vals[i]:
@@ -36,13 +26,11 @@ def manual_minmax_scaler(data):
     normalized_data = []
     scaler_params = {'min': min_vals, 'max': max_vals}
 
-    # Terapkan normalisasi
     for point in data:
         normalized_point = []
         for i in range(num_features):
-            # Hindari pembagian dengan nol jika min == max
             if max_vals[i] - min_vals[i] == 0:
-                 normalized_point.append(0.0) # Atau nilai lain yang sesuai
+                 normalized_point.append(0.0) 
             else:
                 normalized_point.append((point[i] - min_vals[i]) / (max_vals[i] - min_vals[i]))
         normalized_data.append(normalized_point)
@@ -51,10 +39,6 @@ def manual_minmax_scaler(data):
 
 # --- Fungsi untuk Inverse Transform (Manual) ---
 def manual_inverse_transform(normalized_data, scaler_params):
-    """
-    Mengembalikan data yang dinormalisasi ke skala asli menggunakan scaler_params.
-    Input normalized_data diharapkan list of lists.
-    """
     if not normalized_data or not scaler_params:
         return []
 
@@ -66,9 +50,8 @@ def manual_inverse_transform(normalized_data, scaler_params):
     for point in normalized_data:
         original_point = []
         for i in range(num_features):
-             # Hindari pembagian dengan nol saat normalisasi
              if max_vals[i] - min_vals[i] == 0:
-                  original_point.append(min_vals[i]) # Kembalikan ke nilai aslinya
+                  original_point.append(min_vals[i]) 
              else:
                   original_point.append(point[i] * (max_vals[i] - min_vals[i]) + min_vals[i])
         original_data.append(original_point)
@@ -78,10 +61,7 @@ def manual_inverse_transform(normalized_data, scaler_params):
 
 # --- Fungsi untuk Menghitung Jarak Euclidean (Manual) ---
 def manual_euclidean_distance(point1, point2):
-    """
-    Menghitung jarak Euclidean antara dua titik.
-    Titik diharapkan berupa list angka.
-    """
+
     if len(point1) != len(point2):
         raise ValueError("Kedua titik harus memiliki dimensi yang sama.")
     sum_sq_diff = 0
@@ -90,27 +70,12 @@ def manual_euclidean_distance(point1, point2):
     return math.sqrt(sum_sq_diff)
 
 # --- Implementasi Fuzzy C-Means (Manual) ---
-def manual_fuzzy_cmeans(data, k, fuzziness=2, max_iter=1000, error=0.005, seed=None, init=None):
-    """
-    Implementasi dasar Fuzzy C-Means secara manual.
-    Input data diharapkan list of lists (setelah normalisasi).
-    
-    Parameters:
-        data: Data input dalam bentuk list of lists (setelah normalisasi)
-        k: Jumlah klaster yang diinginkan
-        fuzziness: Parameter fuzziness (m), biasanya 2
-        max_iter: Jumlah maksimum iterasi
-        error: Toleransi error untuk konvergensi
-        seed: Nilai seed untuk random number generator (untuk reproduksibilitas)
-        init: Inisialisasi awal keanggotaan atau pusat klaster (None untuk random)        
-    Returns:
-        Pusat klaster dan matriks keanggotaan, atau None jika gagal.
-    """
+def manual_fuzzy_cmeans(data, k, fuzziness=2, max_iter=1000, error=0.005, seed=0, init=None):
     
     num_data = len(data)
     if num_data == 0:
         print("!!! ERROR di manual_fuzzy_cmeans: Data kosong.")
-        return None, None, None  # Return None for centers, u, and sse
+        return None, None, None
 
     num_features = len(data[0])
     if num_features == 0:
@@ -121,97 +86,74 @@ def manual_fuzzy_cmeans(data, k, fuzziness=2, max_iter=1000, error=0.005, seed=N
          print(f"!!! ERROR di manual_fuzzy_cmeans: Jumlah klaster K ({k}) tidak valid.")
          return None, None, None
 
-    # Set random seed jika ditentukan
     if seed is not None:
         random.seed(seed)
-        if np:  # Jika NumPy tersedia (untuk kompatibilitas)
+        if np:
             np.random.seed(seed)
         print(f"    - Menggunakan seed={seed} untuk reproduksibilitas.")
     
-    # Inisialisasi Matriks Keanggotaan U (num_data x k)
     u = []
     if init is not None:
-        # Gunakan inisialisasi yang disediakan
         try:
             if isinstance(init, list) and len(init) == num_data:
-                # Asumsi init adalah matriks keanggotaan
                 u = init.copy()
                 print(f"    - Menggunakan inisialisasi keanggotaan yang disediakan.")
             else:
                 print(f"    - Format init tidak didukung, menggunakan inisialisasi acak.")
                 raise ValueError("Format inisialisasi tidak didukung")
         except:
-            # Fallback ke inisialisasi acak jika format init tidak sesuai
             init = None
     
-    # Inisialisasi acak jika init tidak disediakan atau tidak valid
     if init is None:
         for _ in range(num_data):
             row = [random.random() for _ in range(k)]
-            # Normalisasi agar jumlah keanggotaan setiap baris = 1
             row_sum = sum(row)
-            if row_sum == 0: # Hindari pembagian dengan nol
-                 row = [1.0 / k] * k # Berikan keanggotaan merata jika sum 0
+            if row_sum == 0:
+                 row = [1.0 / k] * k
             else:
                  row = [val / row_sum for val in row]
             u.append(row)
 
     centers = None
-    # Matriks keanggotaan lama untuk cek konvergensi
     u_old = None
 
     print(f"    - Memulai iterasi FCM manual untuk k={k}...")
-
+    
     for iteration in range(max_iter):
-        # 1. Hitung Ulang Pusat Klaster (Centers) (k x num_features)
         centers = []
-        for j in range(k): # Untuk setiap klaster
+        for j in range(k):
             numerator = [0.0] * num_features
             denominator = 0.0
-            for i in range(num_data): # Untuk setiap data
-                # Hitung bobot keanggotaan yang dipangkatkan
+            for i in range(num_data):
                 membership_power = u[i][j] ** fuzziness
                 denominator += membership_power
                 for feat in range(num_features):
                     numerator[feat] += membership_power * data[i][feat]
 
             center_j = []
-            if denominator == 0: # Hindari pembagian dengan nol
-                # Jika tidak ada data yang memiliki keanggotaan ke klaster ini,
-                # inisialisasi ulang pusat ini secara acak atau biarkan saja
-                center_j = [random.random() for _ in range(num_features)] # Contoh: random
+            if denominator == 0:
+                center_j = [random.random() for _ in range(num_features)]
             else:
                 center_j = [num / denominator for num in numerator]
             centers.append(center_j)
 
-        # 2. Hitung Ulang Matriks Keanggotaan U (num_data x k)
-        u_old = [list(row) for row in u] # Salin matriks keanggotaan lama
-        u = [] # Matriks keanggotaan baru
+        u_old = [list(row) for row in u]
+        u = []
 
-        max_u_change = 0.0 # Untuk cek konvergensi
-
-        for i in range(num_data): # Untuk setiap data
-            distances_sq = [] # Kuadrat jarak data ke setiap pusat klaster
+        max_u_change = 0.0
+        
+        for i in range(num_data):
+            distances_sq = []
             for j in range(k):
                  dist = manual_euclidean_distance(data[i], centers[j])
                  distances_sq.append(dist ** 2)
 
-            row_u = [] # Baris keanggotaan untuk data i
-            for j in range(k): # Untuk setiap klaster
+            row_u = []
+            for j in range(k):
                 if distances_sq[j] == 0:
-                    # Jika data point sangat dekat dengan pusat klaster j,
-                    # berikan keanggotaan 1 ke klaster j dan 0 ke klaster lain.
-                    # Ini adalah kasus khusus untuk menghindari pembagian dengan nol.
                     new_membership = 1.0
                 else:
                     sum_denominator = 0.0
-                    # Hitung penyebut untuk rumus keanggotaan FCM
-                    # Formula: u_ij = 1 / sum( (dist_ij / dist_ik)^(2/(m-1)) for k=1..c )
-                    # Dengan m=2: u_ij = 1 / sum( (dist_ij / dist_ik)^2 for k=1..c )
-                    # Jika dist_ik = 0 untuk beberapa k, maka dist_ij/dist_ik akan tak terhingga.
-                    # Jadi, jika dist_ij = 0, kasus di atas sudah ditangani.
-                    # Jika dist_ij > 0 tapi dist_ik = 0 untuk beberapa k != j,
-                    # maka data i sangat dekat dengan pusat k lain. Keanggotaan ke klaster j akan 0.
                     zero_distance_found = False
                     for l in range(k):
                          if distances_sq[l] == 0:
@@ -219,26 +161,20 @@ def manual_fuzzy_cmeans(data, k, fuzziness=2, max_iter=1000, error=0.005, seed=N
                               break
 
                     if zero_distance_found:
-                         # Data point sangat dekat dengan SETIDAKNYA satu pusat klaster.
-                         # Berikan keanggotaan 1 ke klaster yang paling dekat (jarak 0)
-                         # dan 0 ke yang lain.
                          if distances_sq[j] == 0:
                               new_membership = 1.0
                          else:
                               new_membership = 0.0
                     else:
-                         # Kasus umum: tidak ada jarak 0
                          for l in range(k):
-                              sum_denominator += (distances_sq[j] / distances_sq[l]) # Pangkat 2/(m-1), dengan m=2 menjadi pangkat 2
+                              sum_denominator += (distances_sq[j] / distances_sq[l])
                          new_membership = 1.0 / sum_denominator
-
-
+                         
                 row_u.append(new_membership)
 
             u.append(row_u)
 
-            # Hitung perubahan maksimum dalam baris keanggotaan ini
-            if u_old: # Hanya bandingkan jika u_old sudah ada (setelah iterasi pertama)
+            if u_old:
                  row_change = 0.0
                  for j in range(k):
                       change = abs(u[i][j] - u_old[i][j])
@@ -247,53 +183,31 @@ def manual_fuzzy_cmeans(data, k, fuzziness=2, max_iter=1000, error=0.005, seed=N
                  if row_change > max_u_change:
                       max_u_change = row_change
 
-
-        # 3. Cek Konvergensi
         if u_old and max_u_change < error:
             print(f"    - Konvergensi tercapai setelah {iteration + 1} iterasi.")
             break
-        # print(f"    - Iterasi {iteration + 1} selesai. Max U change: {max_u_change:.6f}") # Opsional: cetak progress
 
-    # 4. Hitung SSE (Sum of Squared Error) dari hasil akhir
-    # SSE untuk FCM sering dihitung sebagai sum( u_ij^m * dist_ij^2 )
     sse = 0.0
     for i in range(num_data):
          for j in range(k):
               dist = manual_euclidean_distance(data[i], centers[j])
               sse += (u[i][j] ** fuzziness) * (dist ** 2)
 
-
-    return centers, u, sse # Kembalikan pusat klaster, matriks keanggotaan, dan SSE
+    return centers, u, sse
 
 def calculate_fcm_clusters(n_clusters=None, elbow_result=None):
-    """
-    Menjalankan klastering Fuzzy C-Means (FCM) pada data COVID-19.
-    Menggunakan jumlah klaster optimal berdasarkan analisis elbow.
-    
-    Parameters:
-        n_clusters: Jumlah klaster yang akan digunakan (opsional)
-        elbow_result: Hasil analisis elbow yang sudah dihitung sebelumnya (opsional)
-    
-    Returns:
-        dict: Hasil klastering yang berisi pusat klaster dan data provinsi,
-              atau None jika data gagal dimuat.
-    """
     data_df = load_data()
     if data_df is None:
         return None
 
-    # Dapatkan jumlah klaster optimal dari parameter atau analisis elbow
     if n_clusters is None:
         if elbow_result and "optimal_k" in elbow_result:
-            # Gunakan hasil elbow yang diberikan sebagai parameter
             n_clusters = elbow_result["optimal_k"]
             print(f"\n>>> Menggunakan jumlah cluster optimal dari parameter: k={n_clusters}")
         else:
-            # Jika fungsi ini dipanggil langsung, lakukan analisis elbow terlebih dahulu
             print("\n>>> Menentukan jumlah cluster optimal menggunakan metode Elbow...")
             elbow_result = calculate_elbow_sse()
             
-            # Gunakan hasil optimal k dari analisis elbow atau fallback ke default k=3
             if elbow_result and "optimal_k" in elbow_result:
                 n_clusters = elbow_result["optimal_k"]
                 print(f">>> Jumlah cluster optimal berdasarkan analisis Elbow: k={n_clusters}")
@@ -399,12 +313,7 @@ def calculate_fcm_clusters(n_clusters=None, elbow_result=None):
 
 
 def calculate_elbow_sse():
-    """
-    Menghitung Sum of Squared Error (SSE) untuk berbagai jumlah klaster (k).
-    
-    Returns:
-        dict: Hasil analisis elbow method termasuk nilai k, SSE, FPC, dan prediksi optimal k.
-    """
+
     data_df = load_data()
     if data_df is None:
         return None
@@ -418,7 +327,7 @@ def calculate_elbow_sse():
     # Normalisasi data secara manual
     normalized_features, scaler_params = manual_minmax_scaler(features_list)
       # Range k yang akan dianalisis (2-10)
-    k_range = range(2, 6)
+    k_range = range(3, 6)
     sse_scores = []
     fpc_scores = []  # Fuzzy Partition Coefficient - ukuran tambahan kualitas clustering
     
@@ -427,12 +336,12 @@ def calculate_elbow_sse():
     
     for k in k_range:
         # Set seed untuk hasil yang konsisten
-        random.seed(42)
-        np.random.seed(42)
+        # random.seed(42)
+        # np.random.seed(42)
           # Jalankan algoritma FCM dengan k clusters menggunakan fungsi manual
-        centers, u, sse = manual_fuzzy_cmeans(
-            normalized_features, k, fuzziness=2, max_iter=1000, error=0.005, seed=0, init=None
-        )
+            centers, u, sse = manual_fuzzy_cmeans(
+                normalized_features, k, fuzziness=2, max_iter=1000, error=0.005, seed=0, init=None
+            )
         
         if centers is not None and u is not None and sse is not None:
             sse_scores.append(float(sse))

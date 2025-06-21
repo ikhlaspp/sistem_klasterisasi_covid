@@ -1,5 +1,3 @@
-# backend/data_loader.py
-
 import pandas as pd
 import os
 
@@ -10,16 +8,14 @@ def load_data():
     try:
         df = pd.read_csv(file_path, sep=';')
         print(">>> Pesan dari data_loader.py: File CSV berhasil dimuat.")
-
-        # TAMBAHAN: Cetak nama-nama kolom yang terdeteksi
         print(">>> Nama kolom yang terdeteksi:", df.columns.tolist())
         
-        # Ensure column types are consistent
+
         df['Kasus Positif'] = df['Kasus Positif'].astype(int)
         df['Kasus Sembuh'] = df['Kasus Sembuh'].astype(int)
         df['Kasus Meninggal'] = df['Kasus Meninggal'].astype(int)
         
-        # Calculate additional metrics that might be useful for analysis
+
         df['Recovery Rate'] = (df['Kasus Sembuh'] / df['Kasus Positif'] * 100).round(2)
         df['Death Rate'] = (df['Kasus Meninggal'] / df['Kasus Positif'] * 100).round(2)
         

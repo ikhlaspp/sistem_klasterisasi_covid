@@ -110,10 +110,16 @@ const MapComponent = ({ data }) => {
   
   // Apply custom popup styles
   usePopupStyles();
-  
-  // Calculate additional statistics for each cluster
+    // Calculate additional statistics for each cluster
   useEffect(() => {
     if (data && data.provinces && data.clusters) {
+      // Console log that contains province names grouped by cluster
+      console.log("=== Province Names Grouped By Cluster ===");
+      data.clusters.forEach((provinceList, clusterIndex) => {
+        const provinceNames = provinceList.map(p => p.name).sort();
+        console.log(`Cluster ${clusterIndex + 1} (${provinceNames.length} provinces):`, provinceNames.join(", "));
+      });
+      
       const stats = data.clusters.map((provinceList, clusterIndex) => {
         // If empty cluster
         if (provinceList.length === 0) {
@@ -395,15 +401,17 @@ const MapComponent = ({ data }) => {
                             {stats.count} provinsi
                           </span>
                         )}
-                      </div>
-                      
-                      <div className="text-xs mt-1">
-                        <div className="font-medium mb-1">Nilai Rata-rata Cluster:</div>
-                        <div className="bg-gray-50 p-1.5 rounded mb-1">
-                          <div>Kasus Positif: {Math.round(center[0]).toLocaleString()}</div>
-                          <div>Kasus Sembuh: {Math.round(center[1]).toLocaleString()} ({((center[1]/center[0])*100).toFixed(2)}%)</div>
-                          <div>Kasus Meninggal: {Math.round(center[2]).toLocaleString()} ({((center[2]/center[0])*100).toFixed(2)}%)</div>
-                        </div>
+                      </div>                      <div className="text-xs mt-1">
+                        {stats.count > 0 && (
+                          <details className="mt-1">
+                            <summary className="font-medium cursor-pointer">Nilai Rata-rata Cluster</summary>
+                            <div className="bg-gray-50 p-1.5 rounded mt-1">
+                              <div>Kasus Positif: {Math.round(center[0]).toLocaleString()}</div>
+                              <div>Kasus Sembuh: {Math.round(center[1]).toLocaleString()} ({((center[1]/center[0])*100).toFixed(2)}%)</div>
+                              <div>Kasus Meninggal: {Math.round(center[2]).toLocaleString()} ({((center[2]/center[0])*100).toFixed(2)}%)</div>
+                            </div>
+                          </details>
+                        )}
                         
                         {stats.count > 0 && (
                           <details className="mt-1">
