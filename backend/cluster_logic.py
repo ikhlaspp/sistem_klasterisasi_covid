@@ -327,7 +327,7 @@ def calculate_elbow_sse():
     # Normalisasi data secara manual
     normalized_features, scaler_params = manual_minmax_scaler(features_list)
       # Range k yang akan dianalisis (2-10)
-    k_range = range(3, 6)
+    k_range = range(, 6)
     sse_scores = []
     fpc_scores = []  # Fuzzy Partition Coefficient - ukuran tambahan kualitas clustering
     
@@ -339,9 +339,9 @@ def calculate_elbow_sse():
         # random.seed(42)
         # np.random.seed(42)
           # Jalankan algoritma FCM dengan k clusters menggunakan fungsi manual
-            centers, u, sse = manual_fuzzy_cmeans(
-                normalized_features, k, fuzziness=2, max_iter=1000, error=0.005, seed=0, init=None
-            )
+        centers, u, sse = manual_fuzzy_cmeans(
+            normalized_features, k, fuzziness=2, max_iter=1000, error=0.005, seed=0, init=None
+        )
         
         if centers is not None and u is not None and sse is not None:
             sse_scores.append(float(sse))
