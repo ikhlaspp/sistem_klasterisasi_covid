@@ -1,66 +1,24 @@
 # SiKov-Clust: Sistem Klasterisasi COVID-19
 
-SiKov-Clust adalah aplikasi berbasis web untuk visualisasi dan analisis klasterisasi data COVID-19 di Indonesia dengan menggunakan algoritma Fuzzy C-Means. Aplikasi ini terdiri dari frontend React dan backend FastAPI yang menyediakan analisis data dan perhitungan klaster.
+SiKov-Clust adalah aplikasi berbasis web untuk visualisasi dan analisis klasterisasi data COVID-19 di Indonesia menggunakan algoritma Fuzzy C-Means.
 
-## Fitur Utama
+## Cara Menjalankan Aplikasi
 
-- Visualisasi peta Indonesia dengan pewarnaan provinsi berdasarkan klaster
-- Analisis Elbow Method untuk menentukan jumlah klaster optimal
-- Implementasi algoritma Fuzzy C-Means yang deterministik dan konsisten
-- Pengelompokan provinsi berdasarkan kasus positif, sembuh, dan meninggal
-- Detail statistik untuk setiap provinsi dan klaster
-- Kontrol dinamis untuk mengubah rentang nilai K dalam analisis Elbow Method
+### Kebutuhan Sistem
+- **Frontend**: Node.js v16.0+ dan npm/yarn
+- **Backend**: Python 3.8+ dan pip
 
-## Persyaratan Sistem
-
-### Frontend
-- Node.js (v16.0 atau lebih tinggi)
-- npm atau yarn
-
-### Backend
-- Python 3.8 atau lebih tinggi
-- pip (package manager Python)
-
-## Struktur Proyek
-
-```
-sistem_klasterisasi_covid/
-│
-├── backend/                 # Kode backend Python/FastAPI
-│   ├── data/                # Data COVID-19
-│   │   └── data_covid.csv   # Dataset provinsi Indonesia
-│   ├── cluster_logic.py     # Logika klasterisasi Fuzzy C-Means
-│   ├── data_loader.py       # Modul untuk memuat data
-│   ├── main.py              # Entry point aplikasi FastAPI
-│   └── requirements.txt     # Dependensi Python
-│
-├── public/                  # Assets publik
-│   └── icon.png             # Ikon aplikasi
-│
-├── src/                     # Kode frontend React
-│   ├── assets/              # Assets frontend
-│   │   └── indonesia-prov.geojson  # Data geografis Indonesia
-│   ├── components/          # Komponen React
-│   └── utils/               # Utilitas
-│
-├── index.html               # Entry point HTML
-└── package.json             # Konfigurasi dan dependensi npm
-```
-
-## Panduan Instalasi dan Menjalankan Proyek
-
-### Langkah 1: Clone atau Download Repositori
+### Langkah 1: Persiapan Awal
 
 ```bash
-# Jika menggunakan Git
+# Clone repository (jika menggunakan Git)
 git clone https://github.com/username/sistem_klasterisasi_covid.git
 cd sistem_klasterisasi_covid
 
 # Atau download dan ekstrak ZIP dari repositori
-# kemudian masuk ke direktori hasil ekstrak
 ```
 
-### Langkah 2: Setup Frontend
+### Langkah 2: Menjalankan Frontend
 
 ```bash
 # Install dependensi frontend
@@ -70,9 +28,9 @@ npm install
 npm run dev
 ```
 
-Server development akan berjalan di `http://localhost:5173`.
+Frontend akan berjalan di `http://localhost:5173`
 
-### Langkah 3: Setup Backend
+### Langkah 3: Menjalankan Backend
 
 ```bash
 # Pindah ke direktori backend
@@ -94,101 +52,85 @@ pip install -r requirements.txt
 python -m uvicorn main:app --reload
 ```
 
-Server backend akan berjalan di `http://localhost:8000`.
+Backend akan berjalan di `http://localhost:8000`
 
 ### Langkah 4: Akses Aplikasi
+Buka browser dan kunjungi `http://localhost:5173`
 
-Buka browser dan kunjungi `http://localhost:5173` untuk mengakses aplikasi.
+### Cara Cepat (Alternatif)
+Jika sudah pernah menginstal dependensi:
 
-## Panduan Penggunaan Aplikasi
+1. **Frontend (Terminal 1)**
+   ```bash
+   npm run dev
+   ```
 
-### 1. Dashboard Utama
+2. **Backend (Terminal 2)**
+   ```bash
+   cd backend
+   # Aktifkan virtual environment jika ada
+   venv\Scripts\activate  # Windows
+   # source venv/bin/activate  # macOS/Linux
+   python -m uvicorn main:app --reload
+   ```
 
-Saat pertama kali membuka aplikasi, Anda akan melihat dashboard utama yang menampilkan:
-- Peta Indonesia dengan provinsi yang dikelompokkan berdasarkan klaster
-- Grafik analisis Elbow Method untuk menentukan jumlah klaster optimal
+## Cara Menggunakan Aplikasi
 
-### 2. Menjelajahi Peta Klaster
+1. Pada halaman utama, lihat peta Indonesia dengan provinsi yang dikelompokkan dalam klaster
+2. Gunakan panel kontrol untuk menyesuaikan jumlah klaster:
+   - Masukkan nilai K-min dan K-max untuk analisis Elbow
+   - Klik "Hitung Ulang" untuk memperbarui analisis
+3. Hover pada provinsi untuk melihat detail statistik COVID-19
+4. Lihat panel legend untuk informasi tentang setiap klaster
 
-- **Hover pada provinsi**: Menampilkan informasi detail provinsi termasuk nama, klaster, dan statistik COVID-19
-- **Panel Legend**: Menunjukkan warna untuk setiap klaster dan statistik terkait
-- **Dropdown Filter**: Memungkinkan melihat statistik berdasarkan:
-  - Nilai rata-rata klaster
-  - Rentang nilai statistik
+## Fitur Utama
 
-### 3. Analisis Elbow Method
-
-- Grafik menampilkan analisis untuk menentukan jumlah klaster optimal
-- **Input K-min dan K-max**: Mengubah rentang nilai K untuk analisis
-- **Tombol Hitung Ulang**: Menjalankan kembali analisis Elbow Method dengan rentang nilai K baru
-
-### 4. Konsol Log
-
-- Buka konsol browser (F12) untuk melihat daftar provinsi yang dikelompokkan berdasarkan klaster
-
-## Detail Implementasi Teknis
-
-### Algoritma Klasterisasi
-
-Aplikasi menggunakan implementasi manual algoritma Fuzzy C-Means dengan fitur:
-- Reproduksibilitas melalui parameter `seed` dan `init`
-- Normalisasi data menggunakan MinMaxScaler manual
-- Deteksi otomatis jumlah klaster optimal melalui analisis Elbow Method
-- Pengurutan klaster berdasarkan rata-rata kasus positif
-
-### FastAPI Backend
-
-- Endpoint `/api/clusters`: Mengembalikan hasil klasterisasi provinsi
-- Endpoint `/api/elbow-analysis`: Mengembalikan hasil analisis Elbow Method dengan parameter opsional `k_min` dan `k_max`
-- Endpoint `/api/clear-cache`: Menghapus cache hasil perhitungan
-
-### Frontend React
-
-- Visualisasi peta menggunakan Leaflet dan React-Leaflet
-- Visualisasi grafik menggunakan Chart.js dan React-Chartjs-2
-- State management dengan React Hooks
+- Visualisasi peta Indonesia dengan pewarnaan provinsi berdasarkan klaster
+- Analisis Elbow Method untuk menentukan jumlah klaster optimal
+- Implementasi algoritma Fuzzy C-Means yang deterministik
+- Kontrol dinamis untuk mengubah rentang nilai K dalam analisis
 
 ## Troubleshooting
 
-### Masalah Backend
+### Masalah Umum dan Solusi
 
-1. **Error saat menjalankan backend**:
+1. **Error saat menjalankan backend**
    ```
    Pastikan semua dependensi terinstal: pip install -r requirements.txt
    ```
 
-2. **Masalah terkait matplotlib**:
-   ```
-   Backend menggunakan matplotlib.use('Agg') untuk menghindari issues di lingkungan headless
-   ```
-
-### Masalah Frontend
-
-1. **Error CORS**:
+2. **Error CORS**
    ```
    Pastikan backend berjalan dan origins di main.py mengizinkan domain frontend Anda
    ```
 
-2. **Data tidak muncul di peta**:
+3. **Data tidak muncul di peta**
    ```
-   Periksa konsol browser untuk error dan pastikan path ke GeoJSON benar
+   Periksa konsol browser untuk error dan pastikan backend merespons dengan benar
    ```
 
-## Pengembangan Lanjutan
+4. **Matplotlib error**
+   ```
+   Backend menggunakan matplotlib.use('Agg') untuk menghindari masalah di lingkungan headless
+   ```
 
-Untuk pengembangan lebih lanjut, Anda dapat:
+## Struktur Proyek
 
-1. Menambahkan algoritma klasterisasi lain untuk perbandingan
-2. Menambahkan visualisasi tambahan seperti statistik temporal
-3. Mengintegrasikan data COVID-19 terbaru melalui API eksternal
-4. Menambahkan fitur export hasil klasterisasi (CSV, PDF)
-
-## Deployment
-
-Untuk informasi tentang deployment ke server produksi, lihat:
-- [Panduan Deployment SSH](deployment-ssh.md) - untuk deployment via SSH
-- [Panduan Deployment Alternatif](deployment-alternative.md) - untuk shared hosting
-- [Panduan Deployment Bisnis](deployment-business.md) - untuk paket bisnis Hostinger
+```
+sistem_klasterisasi_covid/
+├── backend/                 # Backend Python/FastAPI
+│   ├── data/                # Data COVID-19
+│   ├── cluster_logic.py     # Algoritma Fuzzy C-Means
+│   ├── data_loader.py       # Modul untuk memuat data
+│   ├── main.py              # Entry point aplikasi FastAPI
+│   └── requirements.txt     # Dependensi Python
+├── src/                     # Frontend React
+│   ├── assets/              # Termasuk GeoJSON Indonesia
+│   ├── components/          # Komponen React
+│   └── utils/               # Utilitas
+├── index.html               # Entry point HTML
+└── package.json             # Konfigurasi npm
+```
 
 ## Kontributor
 
@@ -198,4 +140,4 @@ SiKov-Clust dikembangkan oleh:
 
 ---
 
-© 2025 SiKov-Clust. Dibuat sebagai proyek [Nama Mata Kuliah/Proyek].
+© 2025 SiKov-Clust
